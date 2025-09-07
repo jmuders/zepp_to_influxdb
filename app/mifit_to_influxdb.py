@@ -24,6 +24,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
+
 import base64
 import datetime
 import json
@@ -31,6 +32,12 @@ import os
 import requests
 import sys
 import urllib.parse
+
+# Load .env from project root
+try:
+    from load_env import *
+except ImportError:
+    pass
 
 from influxdb_client import InfluxDBClient, Point
 
@@ -291,8 +298,40 @@ def minute_to_timestamp(minute, day):
     date_string = f"{day} {time_norm}"
     epoch = int(datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M").strftime('%s'))
     return epoch
-    
-  
+
+
+def get_history(auth_info, config):
+    ''' Retrieve historical data from the band/watch associated with the 
+    account
+    '''
+    history="https://api-mifit-de2.zepp.com/v1/sport/run/history.json"
+
+
+    headers={
+        'apptoken': auth_info['token_info']['app_token'],
+    }
+
+    # "need_sub_data=1&startTrackId=1757196000&stopTrackId=1757196000&type=&userid=7083497432"
+
+    # unixtimstamp beginning of current day
+    today = datetime.datetime.today()
+    midnight = datetime.datetime.combine(today, datetime.datetime.min.time())
+    beginning_of_today_ts = today.strftime('%s')
+
+    # unixtimestamp of end of the current day
+    end_of_today = datetime.datetime.combine(today, datetime.datetime.max.time())
+    end_of_today_ts = end_of_today.strftime('%s')
+
+    data={
+        'userid': auth_info['token_info']['user_id'],
+        'need_sub_data': 1,
+        'type': '',
+        'startTrackId': '1757196000', # beginning_of_today_ts,
+        'stopTrackId': '1757196000' # end_of_today_ts,
+    }
+    response=requests.get(history,params=data,headers=headers)
+    return response.json()
+
 def get_band_data(auth_info, config):
     ''' Retrieve information for the band/watch associated with the account
     '''
@@ -324,8 +363,8 @@ def get_band_data(auth_info, config):
         'query_type': 'detail',
         'device_type': 'android_phone',
         'userid': auth_info['token_info']['user_id'],
-        'from_date': query_start.strftime('%Y-%m-%d'),
-        'to_date': today.strftime('%Y-%m-%d'),
+        'from_date': '2025-09-06', # query_start.strftime('%Y-%m-%d'),
+        'to_date': '2025-09-06' #today.strftime('%Y-%m-%d'),
     }
     response=requests.get(band_data_url,params=data,headers=headers)
     
@@ -784,6 +823,14 @@ def main():
     # Fetch band info
     result_set, serial = get_band_data(auth_info, config)
     
+    # Fetch history
+    try:
+        history = get_history(auth_info, config)
+        print("History data retrieved")
+    except:
+        print("Failed to collect history data")
+        history = None
+
     try:
         stress_rows = get_stress_data(auth_info, config)
         result_set = result_set + stress_rows

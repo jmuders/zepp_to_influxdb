@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message SecondHeartRateSection {
+    int32 start_timestamp = 1;
+    repeated int32 heart_rate = 2;
+}
+
+message SecondHeartRate {
+    repeated SecondHeartRateSection section = 1;
+}

@@ -1,0 +1,9 @@
+services:
+  zepp_to_influxdb:
+    image: bentasker12/zepp_to_influxdb:latest
+    env_file:
+      - .env
+    restart: "no"
+    # Uncomment the following if you want to run interactively
+    # stdin_open: true
+    # tty: true
