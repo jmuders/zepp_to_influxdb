@@ -15,7 +15,6 @@ class HuamiExtractor:
         self.query_duration = query_duration
         self.auth_info = self.mifit_auth_email()
 
-
     def mifit_auth_email(self):
         ''' Log into the Mifit API using username and password
             in order to acquire an access token
@@ -276,7 +275,6 @@ class HuamiExtractor:
         today_ts = today.strftime('%s')    
 
         query_start = today - datetime.timedelta(days=self.query_duration)
-
 
         print("Retrieving mi band data")
         band_data_url='https://api-mifit.huami.com/v1/data/band_data.json'
