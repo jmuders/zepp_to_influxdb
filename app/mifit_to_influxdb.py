@@ -40,13 +40,13 @@ def main():
     '''
     config = load_config()    
 
-    #extractor = HuamiExtractor(config['ZEPP_EMAIL'], 
-    #                           config['ZEPP_PASS'], 
-    #                           config['QUERY_DURATION'])
-    #result = extractor.extract()
+    extractor = HuamiExtractor(config['ZEPP_EMAIL'], 
+                               config['ZEPP_PASS'], 
+                               config['QUERY_DURATION'])
+    result = extractor.extract()
     
-    #loader = InfluxDbLoader(config)
-    #loader.write_results(result['data'], result['serial'])
+    loader = InfluxDbLoader(config)
+    loader.write_results(result['data'], result['serial'])
 
     detector = EpisodesDetector(config)
     detector.detect()
