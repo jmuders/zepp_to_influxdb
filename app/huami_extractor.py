@@ -3,6 +3,7 @@ import json
 import requests
 import urllib
 import datetime
+from second_heart_rate_extractor import SecondHeartRateExtractor
 from utils import fail, minute_to_timestamp
 
 class HuamiExtractor:
@@ -14,6 +15,9 @@ class HuamiExtractor:
         self.password = password
         self.query_duration = query_duration
         self.auth_info = self.mifit_auth_email()
+
+        self.second_heart_rate_extractor = SecondHeartRateExtractor(self.auth_info, 
+                                                                    query_duration=self.query_duration)
 
     def mifit_auth_email(self):
         ''' Log into the Mifit API using username and password
@@ -67,6 +71,35 @@ class HuamiExtractor:
         response=requests.post(login_url,data=data,allow_redirects=False)
         result=response.json()
         return result;
+
+    def extract(self):
+        try:
+            result_set, serial = self.get_band_data()
+        except:
+            print("Failed to collect band data")
+
+        try:
+            stress_rows = self.get_stress_data()
+            result_set = result_set + stress_rows
+        except:
+            print("Failed to collect stress data")
+        
+        try:
+            blood_o2 = self.get_blood_oxygen_data()
+            result_set = result_set + blood_o2
+        except:
+            print("Failed to collect blood oxygen data")
+        
+        try:
+            pai = self.get_PAI_data()
+            result_set = result_set + pai
+        except:
+            print("Failed to collect PAI information")
+
+        return {
+            'data': result_set,
+            'serial': serial
+        }
 
     @staticmethod
     def extract_sleep_data(ts, slp, day):
@@ -237,8 +270,6 @@ class HuamiExtractor:
                     }           
                     rows.append(row)
                     s += 60
-
-                
                 
         # Record the number of activities
         row = {

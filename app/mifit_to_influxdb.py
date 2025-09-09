@@ -41,36 +41,15 @@ def main():
     '''
     config = load_config()    
 
+    # Extract data from the Zepp API
     extractor = HuamiExtractor(config['ZEPP_EMAIL'], 
                                config['ZEPP_PASS'], 
                                config['QUERY_DURATION'])
-
-    try:
-        result_set, serial = extractor.get_band_data()
-    except:
-        print("Failed to collect band data")
-
-    try:
-        stress_rows = extractor.get_stress_data()
-        result_set = result_set + stress_rows
-    except:
-        print("Failed to collect stress data")
-    
-    try:
-        blood_o2 = extractor.get_blood_oxygen_data()
-        result_set = result_set + blood_o2
-    except:
-        print("Failed to collect blood oxygen data")
-    
-    try:
-        pai = extractor.get_PAI_data()
-        result_set = result_set + pai
-    except:
-        print("Failed to collect PAI information")
+    result = extractor.extract()
     
     # Write into InfluxDB
     loader = InfluxDbLoader(config)
-    loader.write_results(result_set, serial)
+    loader.write_results(result['data'], result['serial'])
 
 if __name__== "__main__":
     main()
