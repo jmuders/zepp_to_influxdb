@@ -24,8 +24,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-import os
-import sys
+from episodes_detector import EpisodesDetector
 from huami_extractor import HuamiExtractor
 from influxdb_loader import InfluxDbLoader
 from config_loader import load_config
@@ -41,15 +40,16 @@ def main():
     '''
     config = load_config()    
 
-    # Extract data from the Zepp API
-    extractor = HuamiExtractor(config['ZEPP_EMAIL'], 
-                               config['ZEPP_PASS'], 
-                               config['QUERY_DURATION'])
-    result = extractor.extract()
+    #extractor = HuamiExtractor(config['ZEPP_EMAIL'], 
+    #                           config['ZEPP_PASS'], 
+    #                           config['QUERY_DURATION'])
+    #result = extractor.extract()
     
-    # Write into InfluxDB
-    loader = InfluxDbLoader(config)
-    loader.write_results(result['data'], result['serial'])
+    #loader = InfluxDbLoader(config)
+    #loader.write_results(result['data'], result['serial'])
+
+    detector = EpisodesDetector(config)
+    detector.detect()
 
 if __name__== "__main__":
     main()

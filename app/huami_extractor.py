@@ -79,6 +79,12 @@ class HuamiExtractor:
             print("Failed to collect band data")
 
         try:
+            hr_data = self.second_heart_rate_extractor.extract()
+            result_set = result_set + hr_data
+        except:
+            print("Failed to collect second heart rate data")
+
+        try:
             stress_rows = self.get_stress_data()
             result_set = result_set + stress_rows
         except:
