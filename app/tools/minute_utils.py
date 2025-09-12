@@ -1,6 +1,5 @@
 import datetime
 
-
 def fail(message):
     print("Error: {}".format(message))
     quit(1)

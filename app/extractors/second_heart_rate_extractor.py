@@ -10,6 +10,11 @@ class SecondHeartRateExtractor:
         self.auth_info = auth_info
         self.query_duration = query_duration
 
+    def extract(self):
+        fileIds = self.file_info_event_second_heart_rate()
+        hr_data = self.get_second_heart_rate(fileIds)
+        return hr_data, None
+    
     def translate_second_heart_rate(self, data):
         ''' Translate the second heart rate protobuf data into a list of dicts
         '''
@@ -135,13 +140,4 @@ class SecondHeartRateExtractor:
 
         print("Found fileIds for second heart rate data:", fileIds)
         return fileIds
-
-
-    def extract(self):
-
-        fileIds = self.file_info_event_second_heart_rate()
-        hr_data = self.get_second_heart_rate(fileIds)
-
-        return hr_data
-
     
